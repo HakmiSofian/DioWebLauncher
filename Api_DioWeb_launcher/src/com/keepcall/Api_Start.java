@@ -1,6 +1,7 @@
 package com.keepcall;
 
 
+import java.awt.AWTException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -19,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -47,19 +49,17 @@ public class Api_Start {
 	private static String strurl ;
     private static String strdbuser; 
     private static String strdbpassword;
-    private static String strChromeWebDriver ;
-//    private static String strFirefoxWebDriver ;
-    private static String strPathChromeDriver;
-//    private static String strPathFirefoxDriver;
     private static String strUrlDioWeb;
     private static String strUrlHubSpot;
     private static String strPathOut;
     private static String strPathErr;
-    private static String strProcess="chromedriver.exe";
-    private static String KILL = "taskkill /F /IM ";
-    private static WebDriver driver = null;
-//    protected static Logger logger=logger=Logger.getLogger("com.keepcall.Api_Start.class");
-    
+    private static String strPathConfigFile="c:\\config.xml";
+	private static int SMALLWAIT ;
+	private static int WindowsButtonWAIT ;
+	private static int WebSiteWait ;
+	
+	
+
     
     public static void main(String[] args)  {	
 //    	String[][] loginC= {{"CALLCENTER","3QG36R8B"},{"keepcallgroup@gmail.com","Reynog2m"}};
@@ -85,7 +85,6 @@ public class Api_Start {
 			System.setErr(fileErr);
 
 
-			Clean_Chromedrivers(strProcess);
 			
     		System.out.println("*** Start application.");
     	
@@ -150,14 +149,20 @@ public class Api_Start {
 	                    		btnGet.setEnabled(false);
 
 	                    		
-	                    		System.out.println("Open Chromedriver ...");
-	                    		driver = initChromedriver(strChromeWebDriver, strPathChromeDriver) ;
-//	                    		driver = initChromedriver(strFirefoxWebDriver, strPathFirefoxDriver) ;
-	                    		openDioWeb(resultlogin,driver,false);
-//	                    		logger.info("Open Chromedriver ...");
+	                    		try {
+		                    		System.out.println("Open Chrome ...");
+		                    		MyRobot.openChrome(WindowsButtonWAIT,WindowsButtonWAIT);
+		                    		System.out.println("Open DioWeb ...");
+									MyRobot.openDioWeb(resultlogin,WebSiteWait,SMALLWAIT,strUrlDioWeb);
+		                    		System.out.println("Open New Tab ...");
+									MyRobot.newTabChrome(SMALLWAIT);
+		                    		System.out.println("Open HubSpot ...");
+									MyRobot.openHubSpot(resultlogin,WebSiteWait,SMALLWAIT,strUrlHubSpot);
+								} catch (AWTException e1) {
+									e1.printStackTrace();
+								}
 	                    		
-	                    		System.out.println("dromedriver success.");
-//	                    		logger.info("dromedriver success.");
+	                    		System.out.println("All success.");
 	                    		
 
 	                    	}
@@ -199,7 +204,13 @@ public class Api_Start {
 		                    	}else {
 		                    		System.out.println("Login success.");
 		                    		System.out.println("Ouvrir HubSpot.");
-		                    		openHubSpot(resultlogin,driver);
+									try {
+			                    		MyRobot.openChrome(WindowsButtonWAIT,WindowsButtonWAIT);
+										MyRobot.openHubSpot(resultlogin,WebSiteWait,SMALLWAIT,strUrlHubSpot);
+									} catch (AWTException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
 		                    		System.out.println("Ouverture HubSpot success.");
 		                    	}
 	                     }
@@ -213,8 +224,16 @@ public class Api_Start {
 	                		 System.out.println("Refresh.");
 	                 		loggerDB("Refresh Dioweb",tfUser.getText());
 	                 		String[][] resultlogin = testlogin(tfUser.getText(),pfPassword.getText() );
-	                 		openDioWeb(resultlogin,driver,true);
-	                     }
+                    		System.out.println("Open Chrome ...");
+                    		try {
+	                    		MyRobot.openChrome(WindowsButtonWAIT,WindowsButtonWAIT);
+	                    		System.out.println("Open DioWeb ...");
+								MyRobot.openDioWeb(resultlogin,WebSiteWait,SMALLWAIT,strUrlDioWeb);
+							} catch (AWTException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+                  }
 	                });
 	        btnDioWeb.setEnabled(false);
 	
@@ -261,41 +280,10 @@ public class Api_Start {
 	                });
 	        btnFinPause.setEnabled(false);
 	
-	        JButton btnKillProcess = new JButton("Clean Chromedrivers");
 
-	        btnKillProcess.addActionListener(
-	                new ActionListener() {
-	                    public void actionPerformed(ActionEvent e) {
-	                    	Clean_Chromedrivers(strProcess);
-	                    }
-	                });
 	        
 	        JPanel panel = new JPanel();
 	        
-
-	        btnNewWindow.addActionListener(
-	                new ActionListener() {
-	                    public void actionPerformed(ActionEvent e) {
-//	                    	logger.info("Login verification ...");
-	                    	System.out.println("Login verification ...");
-	                        String[][] resultlogin = testlogin(tfUser.getText(),pfPassword.getText() );
-	                        
-	                    	if(resultlogin[0][0].equals("Erreur")) {
-	                    		System.out.println("Login FAILED.  "+resultlogin[0][1]);
-//	                    		logger.warning("Login FAILED.  "+resultlogin[0][1]);
-	                    		JOptionPane.showMessageDialog(frame,
-	                                    "Erreur : " + resultlogin[0][1] );
-	                    	}else {
-	                    		System.out.println("Login success.");
-	                    		System.out.println("Ouvrir nouvelle page.");
-	                    		driver = initChromedriver(strChromeWebDriver, strPathChromeDriver);
-		                    	openDioWeb(resultlogin,driver,false);
-		                    	System.out.println("Ouverture nouvelle page success.");
-	                    	}
-	                    	
-	                    }
-	                });
-	        btnNewWindow.setEnabled(false);
 
 	        
 	//        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -311,8 +299,6 @@ public class Api_Start {
 	        panel.add(btnPause);
 	        panel.add(btnFinPause);
 	        panel.add(btnLogout);
-	        panel.add(btnKillProcess);
-	        panel.add(btnNewWindow);
 	
 	        
 	        List<String> result =new ArrayList<String>();
@@ -393,26 +379,23 @@ public class Api_Start {
 
     	 try {
 
-	 	        File fXmlFile = new File("c:\\config.xml");
+	 	        File fXmlFile = new File(strPathConfigFile);
 	 	        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 	 	        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 	 	        Document doc = dBuilder.parse(fXmlFile);
 	
-	 	       //optional, but recommended
-	 	       //read this - http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
 	 	        doc.getDocumentElement().normalize();
 		
 	 	        strurl = doc.getElementsByTagName("DriverUrl").item(0).getTextContent();
 	 	        strdbuser = doc.getElementsByTagName("DriverUser").item(0).getTextContent();
 	 	        strdbpassword = doc.getElementsByTagName("DriverPassword").item(0).getTextContent();
-	 	        strChromeWebDriver = doc.getElementsByTagName("ChromeWebDriver").item(0).getTextContent();
-//	 	        strFirefoxWebDriver = doc.getElementsByTagName("FirefoxWebDriver").item(0).getTextContent();
-	 	        strPathChromeDriver = doc.getElementsByTagName("PathChromeDriver").item(0).getTextContent();
 	 	        strUrlDioWeb = doc.getElementsByTagName("UrlDioweb").item(0).getTextContent();
 	 	        strUrlHubSpot = doc.getElementsByTagName("UrlHubSpot").item(0).getTextContent();
 	 	        strPathOut = doc.getElementsByTagName("PathOutLog").item(0).getTextContent();
 	 	        strPathErr = doc.getElementsByTagName("PathErrLog").item(0).getTextContent();
-//				strPathFirefoxDriver = &doc.getElementsByTagName("PathFirefoxDriver").item(0).getTextContent();
+	 	        WebSiteWait = Integer.parseInt(doc.getElementsByTagName("WebSiteWait").item(0).getTextContent());
+	 	        SMALLWAIT = Integer.parseInt(doc.getElementsByTagName("SMALLWAIT").item(0).getTextContent());
+	 	        WindowsButtonWAIT = Integer.parseInt(doc.getElementsByTagName("WindowsButtonWAIT").item(0).getTextContent());
 	 	       
 
  	        } catch (Exception e) {
@@ -423,114 +406,8 @@ public class Api_Start {
     }
     
 
-    private static WebDriver initChromedriver(String strChromeWebDriver,String strPathChromeDriver) {
-    	
-    	System.setProperty(strChromeWebDriver,strPathChromeDriver);	
-    
-	    ChromeOptions options = new ChromeOptions();
-	    options.addArguments("--disable-blink-features=AutomationControlled");
-	    
-	//    options.setExperimentalOption("debuggerAddress", "127.0.0.1:9222");
-	//	options.addArguments("user-data-dir="+chromeProfilePath);
-	//	options.addArguments("profile-directory=Profile 1");
-	//	options.addArguments("--start-maximized");
-	
-	    
-	//    DesiredCapabilities capabilities = DesiredCapabilities.chrome();
-	//    capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-		
-	
-	    WebDriver driver = new ChromeDriver(options);
-	    
-//	    FirefoxBinary ffBinary = new FirefoxBinary(pathToBinary);
-//	    FirefoxProfile firefoxProfile = new FirefoxProfile();       
-//	    WebDriver driver = new FirefoxDriver(ffBinary,firefoxProfile);
-	    return driver;
-	    
-	}
-    
-    /**
-     * 
-     * Lancement de Selenium ChromeDriver. Ouverture de l'environnement de travail.
-     * Premiere page pour Dioweb.
-     * Deuxieme page pour Hubspot.
-     * 
-     * @param login
-     */
-    public static void openDioWeb (String[][] login,WebDriver driver,boolean isRefresh) {
-    	
-    	//String test = driver.getWindowHandle();
-    	if(isRefresh) {
-            String a = "window.open('about:blank','_blank');";
-            ((JavascriptExecutor)driver).executeScript(a);
-            
-            ArrayList<String> tabs = new ArrayList<String>(driver.getWindowHandles());
-            driver.switchTo().window(tabs.get(tabs.size()-1));
-    	}
-        driver.get(strUrlDioWeb);	
-        
-        
-        driver.switchTo().frame("FRAME2");
-        WebDriverWait wait = new WebDriverWait (driver, 50);
-        WebElement Submitlogin = wait.until(ExpectedConditions.elementToBeClickable(By.id("FRANCAIS")));
 
-        // Get the WebElement corresponding to the Email Address(TextField)		
-        WebElement loginElem = driver.findElement(By.id("NOMLOGIN"));							
 
-        // Get the WebElement corresponding to the Password Field		
-        WebElement password = driver.findElement(By.id("MOTPASSE"));							
-
-        loginElem.sendKeys(login[0][0]);					
-        password.sendKeys(login[0][1]);
-         
-        System.out.println("Text Field Cleared");					
-
-        // Find the submit button	
-        	
-
-                    		
-				
-        Submitlogin.click();			
-        System.out.println("Login DioWeb Done with Click");	
-    }
-    
-    /**
-     * 
-     * Lancement de Selenium ChromeDriver. Ouverture de l'environnement de travail.
-     * Premiere page pour Dioweb.
-     * Deuxieme page pour Hubspot.
-     * 
-     * @param login
-     */
-    public static void openHubSpot (String[][] login,WebDriver driver) {
-
-        /**
-         * Ouverture d'un nouvel onglet
-         * **/
-        String a = "window.open('about:blank','_blank');";
-        ((JavascriptExecutor)driver).executeScript(a);
-        
-        ArrayList<String> tabs = new ArrayList<String>(driver.getWindowHandles());
-        driver.switchTo().window(tabs.get(tabs.size()-1));
-        driver.get(strUrlHubSpot);
-        
-        //Wait
-        WebDriverWait wait = new WebDriverWait (driver, 50);
-        WebElement Submitlogin = wait.until(ExpectedConditions.elementToBeClickable(By.id("loginBtn")));
-
-        // Get the WebElement corresponding to the Email Address(TextField)		
-        WebElement loginElem = driver.findElement(By.id("username"));							
-
-        // Get the WebElement corresponding to the Password Field		
-        WebElement password = driver.findElement(By.id("password"));	
-        loginElem.sendKeys(login[1][0]);					
-        password.sendKeys(login[1][1]);
-         
-        Submitlogin.click();			
-        System.out.println("Login HubSpot Done with Click");	
-        
-        		
-    }
     
     /**
      * 
@@ -596,67 +473,9 @@ public class Api_Start {
     	   return hourDiff+":"+ minutesDiff+":"+secondesDiff;
     }
     
-    /**
-     * 
-     * Recherche si le process existe.
-     * 
-     * @param serviceName
-     * @return
-     * @throws Exception
-     */
-    public static boolean isProcessRunning(String serviceName) throws Exception {
-
-    	 Process p = Runtime.getRuntime().exec("tasklist");
-    	 BufferedReader reader = new BufferedReader(new InputStreamReader(
-    	 p.getInputStream()));
-    	 String line;
-    	 while ((line = reader.readLine()) != null) {
-	    	  if (line.contains(serviceName)) {
-	    	   return true;
-	    	  }
-    	 }
-
-    	 return false;
-
-    	}
 
 
-	public static void Clean_Chromedrivers(String strProcess) {
-    	try {
 
-	    	Api_Start pKiller = new Api_Start();
 	
-			// To kill a command prompt
-			boolean isRunning = pKiller.isProcessRunning(strProcess);
-	
-			System.out.println("is " + strProcess + " running : " + isRunning);
-	
-			if (isRunning) {
-				pKiller.killProcess(strProcess);
-			}
-			else {
-				System.out.println("Not able to find the process : "+strProcess);
-			}
-    	
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}	
-		}
-        /**
-         * 
-         * Tuer le process en argument.
-         * 
-         * @param serviceName
-         * @throws Exception
-         */
-	public static void killProcess(String serviceName) throws Exception {    	
-		try {
-			Runtime.getRuntime().exec(KILL + serviceName);
-			System.out.println(serviceName+" killed successfully!");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}	 
-	}
 
 }
