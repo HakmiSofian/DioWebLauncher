@@ -496,15 +496,14 @@ public class Api_Start_Selemium {
 
         loginElem.sendKeys(login[0][0]);					
         password.sendKeys(login[0][1]);
-         
-        System.out.println("Text Field Cleared");					
+        Submitlogin.click();			
+
 
         // Find the submit button	
         	
 
                     		
 				
-        Submitlogin.click();			
         System.out.println("Login DioWeb Done with Click");	
     }
     
